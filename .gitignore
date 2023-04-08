@@ -102,3 +102,27 @@ dist
 
 # TernJS port file
 .tern-port
+
+# Ignore virtual environment
+venv/
+
+# Ignore deployment package
+*.zip
+
+# Ignore compiled Python files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore log files and databases
+*.log
+*.sql
+*.sqlite
+
+# Ignore macOS specific files
+.DS_Store
+
+# Ignore environment-specific files (e.g. .env for environment variables)
+.env
+
