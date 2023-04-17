@@ -43,6 +43,12 @@ pip install boto3
 
 deactivate
 
-4. Create the deployment package by compressing the contents of the venv/Lib/site-packages folder (for Windows) or venv/lib/python3.x/site-packages folder (for macOS/Linux) along with your lambda_function.py file. Make sure to compress the contents directly, not the folder itself.
+4. Create the deployment package by compressing the contents of the venv/Lib/site-packages folder (for Windows) or venv/lib/python3.x/site-packages folder (for macOS/Linux) along with the py script files. Make sure to compress the contents directly, not the folder itself.
 
 5. upload the zip file to your lambda function
+
+6. change the laambda handler to <file you are running>.lambda_handler
+
+7. run the scripts importcsv.py, createKeywords.py. you can start and stop createKeywords.py at any time. if there was an issue, run restartScan.py
+
+8. your database is now properly configured
