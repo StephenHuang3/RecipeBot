@@ -8,9 +8,9 @@ import Button from 'react-bootstrap/Button';
 //import axios from 'axios';
 
 const Chatbot = () => {
-  const [messages, setMessages] = useState([]);
-  const [userInput, setUserInput] = useState('');
-  /*const sendMessage = async () => {
+    const [messages, setMessages] = useState([]);
+    const [userInput, setUserInput] = useState('');
+    /*const sendMessage = async () => {
     if (userInput.trim()) {
         setMessages([...messages, { content: userInput, sender: 'user' }]);
         setUserInput('');
@@ -19,67 +19,89 @@ const Chatbot = () => {
       }
     };*/
 
-  const sendMessage = async () => {
-    if (userInput.trim()) {
-      setMessages([...messages, { content: userInput, sender: 'user' }]);
-      setUserInput('');
+    const sendMessage = async () => {
+        if (userInput.trim()) {
+            setMessages([...messages, { content: userInput, sender: 'user' }]);
+            setUserInput('');
 
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        { content: 'Test', sender: 'bot' },
-      ]);
-    }
-  };
+            try {
+                const response = await fetch('/api/message', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        inputText: userInput,
+                    }),
+                });
 
-  const handleKeyPress = (event) => {
-    if (event.key === 'Enter') {
-      if (event.shiftKey) {
-        // If Shift+Enter is pressed, add a line break to the user input
-        setUserInput(userInput + (userInput ? '\n' : ''));
-        // Prevent the default behavior (adding another line break)
-        event.preventDefault();
-      } else {
-        // If Enter is pressed without Shift, send the message
-        sendMessage();
-        // Prevent the default behavior (adding another line break)
-        event.preventDefault();
-      }
-    }
-  };
-  
+                const data = await response.json();
+                console.log(data.message);
 
-  return (
-    <Container>
-      <Row className="chat-window noGutters">
-        <Col>
-          {messages.map((message, index) => (
-            <div key={index} className={`message ${message.sender}`}>
-              {message.content}
-            </div>
-          ))}
-        </Col>
-      </Row>
-      <Row>
-        <Col>
-          <InputGroup>
-            <FormControl
-              as="textarea"
-              rows={3}
-              placeholder="Type your message..."
-              value={userInput}
-              onChange={(e) => setUserInput(e.target.value)}
-              onKeyPress={handleKeyPress}
-            />
-            <InputGroup.Append>
-              <Button variant="primary" onClick={sendMessage}>
-                Send
-              </Button>
-            </InputGroup.Append>
-          </InputGroup>
-        </Col>
-      </Row>
-    </Container>
-  );
+                setMessages((messages) => [
+                    ...messages,
+                    {
+                        content: data.message.map((m) => m.content).join('\n'),
+                        sender: 'bot',
+                    },
+                ]);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+    };
+
+    const handleKeyPress = (event) => {
+        if (event.key === 'Enter') {
+            if (event.shiftKey) {
+                // If Shift+Enter is pressed, add a line break to the user input
+                setUserInput(userInput + (userInput ? '\n' : ''));
+                // Prevent the default behavior (adding another line break)
+                event.preventDefault();
+            } else {
+                // If Enter is pressed without Shift, send the message
+                sendMessage();
+                // Prevent the default behavior (adding another line break)
+                event.preventDefault();
+            }
+        }
+    };
+
+    return (
+        <Container>
+            <Row className="chat-window noGutters">
+                <Col>
+                    {messages.map((message, index) => (
+                        <div
+                            key={index}
+                            className={`message ${message.sender}`}
+                        >
+                            {message.content}
+                        </div>
+                    ))}
+                </Col>
+            </Row>
+            <Row>
+                <Col>
+                    <InputGroup>
+                        <FormControl
+                            as="textarea"
+                            rows={3}
+                            placeholder="Type your message..."
+                            value={userInput}
+                            onChange={(e) => setUserInput(e.target.value)}
+                            onKeyPress={handleKeyPress}
+                        />
+                        <InputGroup.Append>
+                            <Button variant="primary" onClick={sendMessage}>
+                                Send
+                            </Button>
+                        </InputGroup.Append>
+                    </InputGroup>
+                </Col>
+            </Row>
+        </Container>
+    );
 };
 
 export default Chatbot;
