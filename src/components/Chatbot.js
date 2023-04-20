@@ -35,13 +35,26 @@ const Chatbot = () => {
                     }),
                 });
 
+                if (!response.ok) {
+                    throw new Error(
+                        `Request failed with status code ${response.status}`
+                    );
+                }
+
                 const data = await response.json();
-                console.log(data.message);
+                console.log(data);
+
+                let botMessages = [];
+                if (Array.isArray(data.message)) {
+                    botMessages = data.message.map((m) => m.content);
+                } else if (typeof data.message === 'string') {
+                    botMessages = [data.message];
+                }
 
                 setMessages((messages) => [
                     ...messages,
                     {
-                        content: data.message.map((m) => m.content).join('\n'),
+                        content: botMessages.join('\n'),
                         sender: 'bot',
                     },
                 ]);

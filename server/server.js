@@ -8,7 +8,7 @@ require('./aws-credentials');
 
 const client = new LexRuntimeV2Client({ region: 'us-east-1' });
 const botId = '2RYOBPLM3Z';
-const botAliasId = '31MKW4FKL6';
+const botAliasId = 'TSTALIASID';
 
 app.use(express.json());
 
@@ -35,7 +35,21 @@ app.post('/api/message', async function (req, res) {
     try {
         const command = new RecognizeTextCommand(params);
         const data = await client.send(command);
-        res.json({ message: data.messages }); // Only send the message in the response
+        const message = data.messages;
+        console.log(data);
+        console.log('---------------------');
+        if (data.messages != null) {
+            message = data.messages;
+        } else {
+            message =
+                data.sessionState &&
+                data.sessionState.dialogAction &&
+                data.sessionState.dialogAction.message &&
+                data.sessionState.dialogAction.message.content;
+        }
+        console.log(data.messages);
+        console.log('---------------------');
+        res.json({ message: message });
     } catch (err) {
         console.log(err);
         res.status(500).json({ error: 'Error communicating with Lex' });
