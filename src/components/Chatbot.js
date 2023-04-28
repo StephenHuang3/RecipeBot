@@ -8,6 +8,7 @@ import Button from 'react-bootstrap/Button';
 import autosize from 'autosize';
 import IconButton from '@mui/material/IconButton';
 import AutorenewIcon from '@mui/icons-material/Autorenew';
+import ReplayIcon from '@mui/icons-material/Replay';
 
 const Chatbot = () => {
     const [messages, setMessages] = useState([]);
@@ -70,6 +71,10 @@ const Chatbot = () => {
         }
       };
 
+      const resetConversation = () => {
+        setMessages([]);
+      };
+
       const handleRegenerate = async () => {
         // Check if there's at least one message in the messages state
         if (messages.length > 0) {
@@ -78,7 +83,7 @@ const Chatbot = () => {
             setMessages(messages.slice(0, messages.length - 1));
           }
         }
-      
+
         // Fetch the new response and add it to the messages state
         try {
           const response = await fetch('/api/message', {
@@ -173,9 +178,13 @@ const Chatbot = () => {
                     {messages.map((message, index) => (
                     <div key={index} className={`message ${message.sender}`}>
                         {message.content}
-                        {message.sender === 'bot' && (
-                            <IconButton color="inherit" onClick={handleRegenerate}>
-                            <AutorenewIcon />
+                        {message.sender === 'bot' && index === messages.length - 1 && (
+                            <IconButton
+                            className="regenerate-button"
+                            aria-label="regenerate"
+                            onClick={handleRegenerate}
+                          >
+                            <AutorenewIcon style={{ color: 'white' }} />
                           </IconButton>
                         )}
                     </div>
@@ -187,6 +196,9 @@ const Chatbot = () => {
                 <Col>
                 <div className="input-fixed">
                     <InputGroup>
+                    <IconButton onClick={resetConversation} className="reset-button">
+                      <ReplayIcon style={{ color: 'white' }} />
+                    </IconButton>
                     <FormControl
                     as="textarea"
                     rows={1}

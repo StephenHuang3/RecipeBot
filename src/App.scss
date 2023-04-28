@@ -49,6 +49,7 @@ body {
   background-color: #1e1e1e;
   flex-grow: 1;
   height: calc(100% - 4rem - 76px); // Adjust the height to account for the header and input area
+  padding: 0 35rem;
 }
 
 .input-fixed {
@@ -79,14 +80,14 @@ body {
   color: white;
   float: right;
   clear: both;
-  text-align: center;
+  text-align: right;
 }
 
 .message.bot {
   background-color: #414141;
   float: left;
   clear: both;
-  text-align: center;
+  text-align: left;
   color: #b9b9b9;
 }
 
@@ -147,4 +148,19 @@ body {
 .material-icons {
   font-size: 1.25rem;
   vertical-align: middle;
+}
+
+.regenerate-button {
+  color: rgba(255, 255, 255, 0.8);
+  margin-left: 0.5rem;
+  padding: 0;
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+}
+
+.reset-button {
+  background-color: #202124;
+  border: none;
+  padding: 0.5rem;
 }
