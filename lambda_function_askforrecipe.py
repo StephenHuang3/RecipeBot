@@ -92,10 +92,29 @@ def retrive_recipe(item, filter_strings=None):
         print(filter_strings)
 
         filtered_items = []
-        for item in response["Items"]:
-            title = item["title"].lower()
-            if all(string in title for string in filter_strings):
-                filtered_items.append(item)
+        last_evaluated_key = None
+        while not filtered_items:
+            query_params = {
+                "IndexName": "keywords-index",
+                "KeyConditionExpression": key_condition_expression,
+                "ExpressionAttributeValues": expression_attribute_values,
+                "Limit": query_limit,
+            }
+
+            if last_evaluated_key:
+                query_params["ExclusiveStartKey"] = last_evaluated_key
+
+            response = table.query(**query_params)
+            filtered_items = [
+                item
+                for item in response["Items"]
+                if all(s in item["title"].lower() for s in filter_strings)
+            ]
+
+            if "LastEvaluatedKey" in response:
+                last_evaluated_key = response["LastEvaluatedKey"]
+            else:
+                break
 
         print("Filtered results: ", filtered_items)
         return filtered_items
