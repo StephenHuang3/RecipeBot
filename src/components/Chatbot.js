@@ -74,42 +74,6 @@ const Chatbot = () => {
         setMessages([]);
       };
 
-      const handleRegenerate = async () => {
-        // Check if there's at least one message in the messages state
-        if (messages.length > 0) {
-          // Remove the last message if it's from the bot
-          if (messages[messages.length - 1].sender === 'bot') {
-            setMessages(messages.slice(0, messages.length - 1));
-          }
-        }
-
-        // Fetch the new response and add it to the messages state
-        try {
-          const response = await fetch('/api/message', {
-              method: 'POST',
-              headers: {
-                  'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({
-                  inputText: userInput,
-              }),
-          });
-
-          const data = await response.json();
-          console.log(data.message);
-
-          setMessages((messages) => [
-              ...messages,
-              {
-                  content: data.message.map((m) => m.content).join('\n'),
-                  sender: 'bot',
-              },
-          ]);
-      } catch (error) {
-          console.error(error);
-      }
-      };
-
     const sendMessage = async () => {
         if (userInput.trim()) {
             setMessages([...messages, { content: userInput, sender: 'user' }]);
@@ -177,15 +141,6 @@ const Chatbot = () => {
                     {messages.map((message, index) => (
                     <div key={index} className={`message ${message.sender}`}>
                         {message.content}
-                        {message.sender === 'bot' && index === messages.length - 1 && (
-                            <IconButton
-                            className="regenerate-button"
-                            aria-label="regenerate"
-                            onClick={handleRegenerate}
-                          >
-                            <AutorenewIcon style={{ color: 'white' }} />
-                          </IconButton>
-                        )}
                     </div>
                     ))}
                     <div ref={messagesEndRef} />
