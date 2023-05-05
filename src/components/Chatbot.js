@@ -4,11 +4,11 @@ import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import InputGroup from 'react-bootstrap/InputGroup';
 import FormControl from 'react-bootstrap/FormControl';
-import Button from 'react-bootstrap/Button';
 import autosize from 'autosize';
 import IconButton from '@mui/material/IconButton';
 import AutorenewIcon from '@mui/icons-material/Autorenew';
 import ReplayIcon from '@mui/icons-material/Replay';
+import Button from "@mui/material/Button";
 
 const Chatbot = () => {
     const [messages, setMessages] = useState([]);
@@ -17,8 +17,7 @@ const Chatbot = () => {
     const messagesEndRef = useRef(null);
     const [chatWindowHeight, setChatWindowHeight] = useState(0);
     const chatWindowRef = useRef(null);
-    const [selectedMessageIndex, setSelectedMessageIndex] = useState(null);
-    
+
     const scrollToBottom = () => {
         messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
       };
@@ -222,7 +221,7 @@ const Chatbot = () => {
                     onKeyPress={handleKeyPress}
                     ref={inputRef}/>
                     <InputGroup.Append>
-                        <Button variant="dark" onClick={sendMessage}>
+                        <Button onClick={sendMessage} sx={{ color: 'white' }}>
                             <span className="material-icons">send</span>
                         </Button>
                     </InputGroup.Append>

@@ -7,15 +7,10 @@ as part of the 'OrderFlowers' template.
 For instructions on how to set up and test this bot, as well as additional samples,
 visit the Lex Getting Started documentation http://docs.aws.amazon.com/lex/latest/dg/getting-started.html.
 """
-import math
+import random
 import dateutil.parser
-import datetime
-import time
-import os
 import logging
-import json
 import boto3
-import uuid
 from boto3.dynamodb.conditions import Attr
 
 logger = logging.getLogger()
@@ -35,6 +30,10 @@ def safe_int(n):
     if n is not None:
         return int(n)
     return n
+
+
+def get_random_recipe_index(list_length):
+    return random.randint(0, list_length - 1)
 
 
 def try_ex(func):
@@ -65,46 +64,60 @@ def confirm_intent(session_attributes, intent_name, slots, message):
 
 
 def retrive_recipe(item, filter_strings=None):
+    query_limit = 100
     dynamodb = boto3.resource("dynamodb")
     table = dynamodb.Table("bakingrecipes4_keywordsv2")
 
     key_condition_expression = "keywords = :keyword"
     expression_attribute_values = {":keyword": str(item)}
 
-    print("this is filter_strings length: " + str(len(filter_strings)))
-    print(filter_strings)
+    response = table.query(
+        IndexName="keywords-index",
+        KeyConditionExpression=key_condition_expression,
+        ExpressionAttributeValues=expression_attribute_values,
+        Limit=query_limit,
+    )
 
-    if filter_strings and len(filter_strings) != 0:
-        filter_expression = None
-        for string in filter_strings:
-            if filter_expression is None:
-                filter_expression = Attr("title").contains(string)
-            else:
-                filter_expression = filter_expression & Attr("title").contains(string)
-
-        print("Filter expression: ", filter_expression)  # Add this line
-
-        response = table.query(
-            IndexName="keywords-index",
-            KeyConditionExpression=key_condition_expression,
-            ExpressionAttributeValues=expression_attribute_values,
-            FilterExpression=filter_expression,
-        )
-    else:
-        response = table.query(
-            IndexName="keywords-index",
-            KeyConditionExpression=key_condition_expression,
-            ExpressionAttributeValues=expression_attribute_values,
-        )
-
-    print("Query parameters: ")  # Add this line
+    print("Query parameters: ")
     print("IndexName: ", "keywords-index")
     print("KeyConditionExpression: ", key_condition_expression)
     print("ExpressionAttributeValues: ", expression_attribute_values)
-    print("FilterExpression: ", filter_expression)
 
     print("this is response")
     print(response["Items"])
+
+    if filter_strings:
+        filter_strings = [s.lower() for s in filter_strings]
+        print("this is filter_strings length: " + str(len(filter_strings)))
+        print(filter_strings)
+
+        filtered_items = []
+        last_evaluated_key = None
+        while not filtered_items:
+            query_params = {
+                "IndexName": "keywords-index",
+                "KeyConditionExpression": key_condition_expression,
+                "ExpressionAttributeValues": expression_attribute_values,
+                "Limit": query_limit,
+            }
+
+            if last_evaluated_key:
+                query_params["ExclusiveStartKey"] = last_evaluated_key
+
+            response = table.query(**query_params)
+            filtered_items = [
+                item
+                for item in response["Items"]
+                if all(s in item["title"].lower() for s in filter_strings)
+            ]
+
+            if "LastEvaluatedKey" in response:
+                last_evaluated_key = response["LastEvaluatedKey"]
+            else:
+                break
+
+        print("Filtered results: ", filtered_items)
+        return filtered_items
 
     return response["Items"]
 
@@ -176,14 +189,6 @@ def build_validation_result(is_valid, violated_slot, message_content):
     }
 
 
-def isvalid_date(date):
-    try:
-        dateutil.parser.parse(date)
-        return True
-    except ValueError:
-        return False
-
-
 def validate_ask_for_recipe(item, flavor, dietary_restrictions):
     allowed_dietary_restrictions = [
         "gluten free",
@@ -205,42 +210,6 @@ def validate_ask_for_recipe(item, flavor, dietary_restrictions):
             "dietary_restrictions",
             "I did not understand that, your dietary restriction is not in our list. Please try again",
         )
-    # if flavor is not None:
-    #     if not isvalid_date(flavor):
-    #         return build_validation_result(
-    #             False,
-    #             "PickupDate",
-    #             "I did not understand that, what date would you like to pick the flowers up?",
-    #         )
-    #     elif (
-    #         datetime.datetime.strptime(flavor, "%Y-%m-%d").date()
-    #         <= datetime.date.today()
-    #     ):
-    #         return build_validation_result(
-    #             False,
-    #             "PickupDate",
-    #             "You can pick up the flowers from tomorrow onwards.  What day would you like to pick them up?",
-    #         )
-
-    # if servings is not None:
-    #     if len(servings) != 5:
-    #         # Not a valid time; use a prompt defined on the build-time model.
-    #         return build_validation_result(False, "PickupTime", None)
-
-    #     hour, minute = servings.split(":")
-    #     hour = parse_int(hour)
-    #     minute = parse_int(minute)
-    #     if math.isnan(hour) or math.isnan(minute):
-    #         # Not a valid time; use a prompt defined on the build-time model.
-    #         return build_validation_result(False, "PickupTime", None)
-
-    #     if hour < 10 or hour > 16:
-    #         # Outside of business hours
-    #         return build_validation_result(
-    #             False,
-    #             "PickupTime",
-    #             "Our business hours are from ten a m. to five p m. Can you specify a time during this range?",
-    #         )
 
     return build_validation_result(True, None, None)
 
@@ -473,14 +442,20 @@ def ask_for_recipe(intent_request):
     print("Flavor: ", flavor["value"]["interpretedValue"])
 
     item_last = item["value"]["interpretedValue"].split(" ")[-1]
-    flavor_plus_descriptors = flavor["value"]["interpretedValue"].split(" ")
+    flavor_plus_descriptors = item["value"]["interpretedValue"].split(" ")
     flavor_plus_descriptors.pop()
+
+    print("flavor_plus_descriptors after splitting item:", flavor_plus_descriptors)
+
     if (
         flavor["value"]["interpretedValue"] != "any"
         and flavor["value"]["interpretedValue"] != "none"
         and flavor["value"]["interpretedValue"] != "no"
     ):
-        flavor_plus_descriptors.append(flavor["value"]["interpretedValue"])
+        flavor_plus_descriptors.extend(flavor["value"]["interpretedValue"].split(" "))
+
+    print("Item last: ", item_last)
+    print("flavor_plus_descriptors after adding flavor:", flavor_plus_descriptors)
 
     results = retrive_recipe(item_last, flavor_plus_descriptors)
 
@@ -506,7 +481,8 @@ def ask_for_recipe(intent_request):
             },
         )
     else:
-        recipe = filtered_dietary_results[0]
+        random_index = get_random_recipe_index(len(filtered_dietary_results))
+        recipe = filtered_dietary_results[random_index]
         title = recipe["title"]
         ingredients = "\n".join(recipe["ingredients"])
         directions = "\n".join(recipe["directions"])
