@@ -7,8 +7,8 @@ const {
 require('./aws-credentials');
 
 const client = new LexRuntimeV2Client({ region: 'us-east-1' });
-const botId = '2RYOBPLM3Z';
-const botAliasId = 'TSTALIASID'; // DRAFT VSERSION, TestBotAlias
+const botId = 'OAZWY4196S';
+const botAliasId = 'XOEIZO02CE'; // BOT VERSION 1, Alias: Proda
 
 app.use(express.json());
 
@@ -35,16 +35,16 @@ app.post('/api/message', async function (req, res) {
     try {
         const command = new RecognizeTextCommand(params);
         const data = await client.send(command);
-        console.log(data);
-        console.log('---------------------');
-        console.log(data.messages);
-        console.log('---------------------');
+        // console.log(data);
+        // console.log('---------------------');
+        // console.log(data.messages);
+        // console.log('---------------------');
         if (data.messages && data.messages.length) {
             res.json({ message: data.messages });
         } else {
             res.json({
                 message:
-                    "I'm sorry, I didn't understand that. Can you please try again?",
+                    "I'm sorry, I didn't understand that :(( can you please try again?",
             });
         }
     } catch (err) {
