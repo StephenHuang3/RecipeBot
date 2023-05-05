@@ -3,6 +3,7 @@ const app = express();
 const {
     LexRuntimeV2Client,
     RecognizeTextCommand,
+    DeleteSessionCommand,
 } = require('@aws-sdk/client-lex-runtime-v2');
 require('./aws-credentials');
 
@@ -52,6 +53,29 @@ app.post('/api/message', async function (req, res) {
         res.status(500).json({ error: 'Error communicating with Lex' });
     }
 });
+
+const deleteConversation = async (req, res) => {
+    try {
+        const params = {
+            botAliasId: botAliasId,
+            botId: botId,
+            localeId: 'en_US',
+            sessionId: req.ip,
+        };
+
+        const command = new DeleteSessionCommand(params);
+        const response = await client.send(command);
+        res.json({ success: true, message: 'Conversation reset successfully' });
+    } catch (error) {
+        console.error('Error resetting conversation:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to reset conversation',
+        });
+    }
+};
+
+app.post('/reset-conversation', deleteConversation);
 
 app.listen(5000, () => {
     console.log('Server started on port 5000');
