@@ -211,18 +211,6 @@ const Chatbot = () => {
                             className={`message ${message.sender}`}
                         >
                             {message.content}
-                            {message.sender === 'bot' &&
-                                index === messages.length - 1 && (
-                                    <IconButton
-                                        className="regenerate-button"
-                                        aria-label="regenerate"
-                                        onClick={handleRegenerate}
-                                    >
-                                        <AutorenewIcon
-                                            style={{ color: 'white' }}
-                                        />
-                                    </IconButton>
-                                )}
                         </div>
                     ))}
                     <div ref={messagesEndRef} />
