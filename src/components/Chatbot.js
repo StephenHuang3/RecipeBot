@@ -6,9 +6,14 @@ import InputGroup from 'react-bootstrap/InputGroup';
 import FormControl from 'react-bootstrap/FormControl';
 import autosize from 'autosize';
 import IconButton from '@mui/material/IconButton';
-import AutorenewIcon from '@mui/icons-material/Autorenew';
 import ReplayIcon from '@mui/icons-material/Replay';
-import Button from '@mui/material/Button';
+import InfoIcon from "@mui/icons-material/Info";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogActions from "@mui/material/DialogActions";
+import Button from "@mui/material/Button";
 
 const Chatbot = () => {
     const [messages, setMessages] = useState([]);
@@ -17,6 +22,15 @@ const Chatbot = () => {
     const messagesEndRef = useRef(null);
     const [chatWindowHeight, setChatWindowHeight] = useState(0);
     const chatWindowRef = useRef(null);
+    const [aboutDialogOpen, setAboutDialogOpen] = useState(false);
+
+    const openAboutDialog = () => {
+        setAboutDialogOpen(true);
+      };
+  
+      const closeAboutDialog = () => {
+        setAboutDialogOpen(false);
+      };
 
     const scrollToBottom = () => {
         messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -85,42 +99,6 @@ const Chatbot = () => {
             console.log(data);
         } catch (error) {
             console.error('Error resetting conversation:', error);
-        }
-    };
-
-    const handleRegenerate = async () => {
-        // Check if there's at least one message in the messages state
-        if (messages.length > 0) {
-            // Remove the last message if it's from the bot
-            if (messages[messages.length - 1].sender === 'bot') {
-                setMessages(messages.slice(0, messages.length - 1));
-            }
-        }
-
-        // Fetch the new response and add it to the messages state
-        try {
-            const response = await fetch('/api/message', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    inputText: userInput,
-                }),
-            });
-
-            const data = await response.json();
-            console.log(data.message);
-
-            setMessages((messages) => [
-                ...messages,
-                {
-                    content: data.message.map((m) => m.content).join('\n'),
-                    sender: 'bot',
-                },
-            ]);
-        } catch (error) {
-            console.error(error);
         }
     };
 
@@ -220,6 +198,9 @@ const Chatbot = () => {
                 <Col>
                     <div className="input-fixed">
                         <InputGroup>
+                        <IconButton onClick={openAboutDialog} sx={{ color: 'white' }}>
+                            <InfoIcon />
+                        </IconButton>
                             <IconButton
                                 onClick={resetConversation}
                                 className="reset-button"
@@ -245,6 +226,30 @@ const Chatbot = () => {
                                 </Button>
                             </InputGroup.Append>
                         </InputGroup>
+                        <Dialog
+                        open={aboutDialogOpen}
+                        onClose={closeAboutDialog}
+                        aria-labelledby="about-dialog-title"
+                        aria-describedby="about-dialog-description"
+                        PaperProps={{
+                            sx: {
+                                backgroundColor: "#2e2e2e",
+                            },
+                            }}>
+                                <DialogTitle id="about-dialog-title" sx={{ color: "#ffffff" }}>
+                                    User Guide
+                                </DialogTitle>
+                                <DialogContent>
+                                    <DialogContentText id="about-dialog-description" sx={{ color: "#ffffff" }}>
+                                        This chatbot prompts the user for three different slots, the item, the flavour, and any dietary restrictions. Based on the answers that the user provides, the bot will randomly choose a recipe that matches the users request from a recipe database<br></br><br></br>Github Link: <a href="https://github.com/StephenHuang3/RecipeBot" target="_blank" rel="noopener noreferrer"> Recipe Bot</a>
+                                    </DialogContentText>
+                                </DialogContent>
+                                <DialogActions>
+                                    <Button onClick={closeAboutDialog} color="primary">
+                                        Close
+                                    </Button>
+                                </DialogActions>
+                            </Dialog>
                     </div>
                 </Col>
             </Row>
