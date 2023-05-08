@@ -7,13 +7,13 @@ import FormControl from 'react-bootstrap/FormControl';
 import autosize from 'autosize';
 import IconButton from '@mui/material/IconButton';
 import ReplayIcon from '@mui/icons-material/Replay';
-import InfoIcon from "@mui/icons-material/Info";
-import Dialog from "@mui/material/Dialog";
-import DialogTitle from "@mui/material/DialogTitle";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogActions from "@mui/material/DialogActions";
-import Button from "@mui/material/Button";
+import InfoIcon from '@mui/icons-material/Info';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogActions from '@mui/material/DialogActions';
+import Button from '@mui/material/Button';
 
 const Chatbot = () => {
     const [messages, setMessages] = useState([]);
@@ -26,11 +26,11 @@ const Chatbot = () => {
 
     const openAboutDialog = () => {
         setAboutDialogOpen(true);
-      };
-  
-      const closeAboutDialog = () => {
+    };
+
+    const closeAboutDialog = () => {
         setAboutDialogOpen(false);
-      };
+    };
 
     const scrollToBottom = () => {
         messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
@@ -198,9 +198,12 @@ const Chatbot = () => {
                 <Col>
                     <div className="input-fixed">
                         <InputGroup>
-                        <IconButton onClick={openAboutDialog} sx={{ color: 'white' }}>
-                            <InfoIcon />
-                        </IconButton>
+                            <IconButton
+                                onClick={openAboutDialog}
+                                sx={{ color: 'white' }}
+                            >
+                                <InfoIcon />
+                            </IconButton>
                             <IconButton
                                 onClick={resetConversation}
                                 className="reset-button"
@@ -227,29 +230,55 @@ const Chatbot = () => {
                             </InputGroup.Append>
                         </InputGroup>
                         <Dialog
-                        open={aboutDialogOpen}
-                        onClose={closeAboutDialog}
-                        aria-labelledby="about-dialog-title"
-                        aria-describedby="about-dialog-description"
-                        PaperProps={{
-                            sx: {
-                                backgroundColor: "#2e2e2e",
-                            },
-                            }}>
-                                <DialogTitle id="about-dialog-title" sx={{ color: "#ffffff" }}>
-                                    User Guide
-                                </DialogTitle>
-                                <DialogContent>
-                                    <DialogContentText id="about-dialog-description" sx={{ color: "#ffffff" }}>
-                                        This chatbot prompts the user for three different slots, the item, the flavour, and any dietary restrictions. Based on the answers that the user provides, the bot will randomly choose a recipe that matches the users request from a recipe database<br></br><br></br>Github Link: <a href="https://github.com/StephenHuang3/RecipeBot" target="_blank" rel="noopener noreferrer"> Recipe Bot</a>
-                                    </DialogContentText>
-                                </DialogContent>
-                                <DialogActions>
-                                    <Button onClick={closeAboutDialog} color="primary">
-                                        Close
-                                    </Button>
-                                </DialogActions>
-                            </Dialog>
+                            open={aboutDialogOpen}
+                            onClose={closeAboutDialog}
+                            aria-labelledby="about-dialog-title"
+                            aria-describedby="about-dialog-description"
+                            PaperProps={{
+                                sx: {
+                                    backgroundColor: '#2e2e2e',
+                                },
+                            }}
+                        >
+                            <DialogTitle
+                                id="about-dialog-title"
+                                sx={{ color: '#ffffff' }}
+                            >
+                                User Guide
+                            </DialogTitle>
+                            <DialogContent>
+                                <DialogContentText
+                                    id="about-dialog-description"
+                                    sx={{ color: '#ffffff' }}
+                                >
+                                    This chatbot prompts its user for three
+                                    different slots, the item, the flavour, and
+                                    any dietary restrictions. Based on the
+                                    answers that you provide, the bot will
+                                    choose a recipe that matches your request!
+                                    <br></br>
+                                    <br></br>To get started, just type anything
+                                    such as a simple 'hi'<br></br>
+                                    <br></br>Github Link:{' '}
+                                    <a
+                                        href="https://github.com/StephenHuang3/RecipeBot"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        {' '}
+                                        Recipe Bot
+                                    </a>
+                                </DialogContentText>
+                            </DialogContent>
+                            <DialogActions>
+                                <Button
+                                    onClick={closeAboutDialog}
+                                    color="primary"
+                                >
+                                    Close
+                                </Button>
+                            </DialogActions>
+                        </Dialog>
                     </div>
                 </Col>
             </Row>
