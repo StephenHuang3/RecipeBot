@@ -1,7 +1,7 @@
 {
     "name": "chatbot-app",
     "version": "0.1.0",
-    "proxy": "http://localhost:5000",
+    "proxy": "http://localhost:5002",
     "private": true,
     "dependencies": {
         "@aws-sdk/client-lex-runtime-service": "^3.315.0",
@@ -29,8 +29,9 @@
         "web-vitals": "^2.1.4"
     },
     "scripts": {
-        "start:client": "react-scripts start",
+        "start:client": "react-scripts start --port 5000 --disable-host-check",
         "start:server": "node server/server.js",
+        "start": "node server/server.js",
         "build": "react-scripts build",
         "test": "react-scripts test",
         "eject": "react-scripts eject"
@@ -40,6 +41,9 @@
             "react-app",
             "react-app/jest"
         ]
+    },
+    "engines": {
+        "node": "18.x"
     },
     "browserslist": {
         "production": [

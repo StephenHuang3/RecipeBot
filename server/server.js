@@ -1,9 +1,11 @@
+require('dotenv').config();
 const express = require('express');
+const path = require('path');
 const app = express();
 const {
-    LexRuntimeV2Client,
-    RecognizeTextCommand,
-    DeleteSessionCommand,
+  LexRuntimeV2Client,
+  RecognizeTextCommand,
+  DeleteSessionCommand,
 } = require('@aws-sdk/client-lex-runtime-v2');
 require('./aws-credentials');
 
@@ -11,15 +13,19 @@ const client = new LexRuntimeV2Client({ region: 'us-east-1' });
 const botId = 'OAZWY4196S';
 const botAliasId = 'XOEIZO02CE'; // BOT VERSION 1, Alias: Proda
 
+// Use the PORT environment variable provided by Elastic Beanstalk or default to 5000
+const port = process.env.PORT || 5000;
+
 app.use(express.json());
+app.use(express.static(path.join(__dirname, '../build')));
 
 app.use(function (req, res, next) {
-    res.header('Access-Control-Allow-Origin', '*');
-    res.header(
-        'Access-Control-Allow-Headers',
-        'Origin, X-Requested-With, Content-Type, Accept'
-    );
-    next();
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header(
+    'Access-Control-Allow-Headers',
+    'Origin, X-Requested-With, Content-Type, Accept'
+  );
+  next();
 });
 
 app.post('/api/message', async function (req, res) {
@@ -77,6 +83,10 @@ const deleteConversation = async (req, res) => {
 
 app.post('/reset-conversation', deleteConversation);
 
-app.listen(5000, () => {
-    console.log('Server started on port 5000');
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../build/index.html'));
+});
+
+app.listen(port, () => {
+  console.log(`Server started on port ${port}`);
 });
